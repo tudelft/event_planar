@@ -1,0 +1,64 @@
+experiment: Benchmarking
+
+data:
+    path: ../datasets/sr_dataset_train
+    mode: time  # events/time
+    window: 0.005  # events/time
+    passes_loss: 5
+    passes_bptt: 5
+    voxel: Null  # number of bins
+    crop: 16  # after downsampling
+    downsample: 2  # only applied to corner crops
+    bin_max_events: 90  # per corner
+    cache: True
+
+model:
+    name: SplitSpikingRec4ptNet
+    activations: [arctanspike, arctanspike] # activations for ff and rec neurons
+    final_activation: Null
+    final_bias: True
+    final_w_scale: 0.01
+
+spiking_neuron:
+    leak_i: [-2.0, 0.1]
+    leak_v: [-2.0, 0.1]
+    thresh: [1.0, 0.1]
+    learn_leak: True
+    learn_thresh: True
+    hard_reset: True
+    delay: False  # axonal delays
+    share_params: True  # within layers
+    weights_bits: 6  # 1, 2, 4, 5, 6, 8
+    self_rnn: False  # self-rec connections (conv otherwise)
+
+loss:
+    flow_scaling: 32
+    flow_temp_reg: 0.1
+    clip_grad: 100.0 # set to Null to disable
+
+optimizer:
+    name: Adam
+    lr: 0.0001
+
+loader:
+    n_epochs: 100
+    batch_size: 16
+    resolution: [180, 180] # H x W
+    augment: ["Horizontal", "Vertical", "Polarity"]
+    augment_prob: [0.5, 0.5, 0.5]
+    gpu: 0
+
+distortion:
+    undistort: True
+    fx: 208.2445
+    fy: 208.3810
+    xc: 90.0
+    yc: 90.0
+    dist_coeff: [-0.4344, 0.1873, 0.0, 0.0, 0.0] # k1, k2, p1, p2, p3, p4
+
+vis:
+    verbose: True
+    enabled: False
+    px: 400
+    store_grads: False
+    ground_truth: False
